@@ -6,6 +6,7 @@ import Surveys from "@/pages/Surveys";
 import SurveyDetail from "@/pages/SurveyDetail";
 import Home from "@/pages/Home";
 import NavBar from "@/components/NavBar";
+import AnswerSurveyPage from "@/pages/AnswerSurvey";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/create" element={<CreateSurvey />} />
           <Route path="/surveys" element={<Surveys />} />
           <Route path="/survey/:id" element={<SurveyDetail />} />
+          <Route path="/answer/:id" element={<AnswerSurveyPage />} />
         </Routes>
       </Router>
     </ThirdwebProvider>

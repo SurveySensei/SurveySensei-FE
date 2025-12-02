@@ -1,15 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useActiveAccount } from 'thirdweb/react';
 import { Loader2, CopyCheck } from 'lucide-react';
+import Container from '@/components/Container';
 
 export default function Home() {
   const account = useActiveAccount();
-  const [recent, setRecent] = React.useState<{ id: string; title?: string; createdAt?: string; totalReward?: string; targetResponses?: number }[]>([]);
-  const latestId = typeof window !== 'undefined' ? localStorage.getItem('latestSurveyId') : null;
-  const shareUrl = latestId ? `${window.location.origin}/survey/${latestId}` : null;
+  const [recent, setRecent] = React.useState<{ id: string; title?: string; createdAt?: number | string; totalReward?: string; targetResponses?: number }[]>([]);
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 md:px-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <Container>
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600">Create and manage your blockchain surveys</p>
@@ -29,34 +28,20 @@ export default function Home() {
           </div>
         </div>
 
-        {latestId && (
-          <div className="mt-6 bg-white p-6 rounded-lg shadow">
-            <h3 className="text-md font-semibold mb-2">Latest created survey</h3>
-            <p className="font-mono text-sm">{latestId}</p>
-            <div className="mt-3 flex gap-3">
-              <Link to={`/survey/${latestId}`} className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">View Details</Link>
-              {shareUrl && (
-                <button
-                  onClick={async () => { await navigator.clipboard.writeText(shareUrl); }}
-                  className="bg-gray-100 text-gray-800 py-2 px-4 rounded hover:bg-gray-200"
-                >Copy Share Link</button>
-              )}
-            </div>
-          </div>
-        )}
+        
 
         <ToastProvider>
           <RecentSurveys accountAddress={account?.address} onLoad={(list) => setRecent(list)} />
         </ToastProvider>
-      </div>
+      </Container>
     </div>
   );
 }
 
 import React from 'react';
 
-function RecentSurveys({ accountAddress, onLoad }: { accountAddress?: string; onLoad?: (list: { id: string; title?: string; createdAt?: string; totalReward?: string; targetResponses?: number }[]) => void }) {
-  const [items, setItems] = React.useState<{ id: string; title?: string; createdAt?: string; totalReward?: string; targetResponses?: number }[]>([]);
+function RecentSurveys({ accountAddress, onLoad }: { accountAddress?: string; onLoad?: (list: { id: string; title?: string; createdAt?: number | string; totalReward?: string; targetResponses?: number }[]) => void }) {
+  const [items, setItems] = React.useState<{ id: string; title?: string; createdAt?: number | string; totalReward?: string; targetResponses?: number }[]>([]);
   const [loading, setLoading] = React.useState(false);
   React.useEffect(() => {
     const run = async () => {
@@ -73,14 +58,16 @@ function RecentSurveys({ accountAddress, onLoad }: { accountAddress?: string; on
         const list = raw.map((s: any) => ({
           id: s.surveyId || s.id,
           title: s.title || s.description || undefined,
-          createdAt: s.createdAt || s.created_at || s.created || undefined,
+          createdAt: s.createdAt ?? s.created_at ?? s.created ?? undefined,
           totalReward: s.totalReward,
           targetResponses: s.targetResponses,
-        })).slice(0, 10);
+        }))
+        .sort((a: any, b: any) => Number(b.createdAt ?? 0) - Number(a.createdAt ?? 0))
+        .slice(0, 10);
         setItems(list);
         onLoad?.(list);
       } catch {
-        setItems([]);
+        // preserve existing items on transient errors
       } finally {
         setLoading(false);
       }
@@ -88,7 +75,17 @@ function RecentSurveys({ accountAddress, onLoad }: { accountAddress?: string; on
     run();
   }, [accountAddress]);
 
-  if (!accountAddress) return null;
+  if (!accountAddress) {
+    return (
+      <div className="mt-8 bg-white p-6 rounded-lg shadow">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-md font-semibold">Recent Surveys</h3>
+          <Link to="/surveys" className="text-blue-600">View all</Link>
+        </div>
+        <p className="text-sm text-gray-600">Connect your wallet to view recent surveys from your account.</p>
+      </div>
+    );
+  }
   return (
     <div className="mt-8 bg-white p-6 rounded-lg shadow">
       <div className="flex items-center justify-between mb-3">
@@ -143,8 +140,8 @@ function RecentSurveys({ accountAddress, onLoad }: { accountAddress?: string; on
   );
 }
 
-function formatDate(input: string) {
-  const d = new Date(input);
+function formatDate(input: string | number) {
+  const d = new Date(typeof input === 'number' ? input : input);
   if (isNaN(d.getTime())) return input;
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }

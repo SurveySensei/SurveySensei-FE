@@ -5,7 +5,7 @@ import { client } from '@/config/thirdweb';
 import abiJson from '@/utils/surveyRewardsAbi.json';
 import { getBnbChain } from '@/config/chains';
 
-const SURVEY_CONTRACT_ADDRESS = '0xF01973c4A8eDC7B8173AdC8E097A1EfE479f4571';
+export const SURVEY_CONTRACT_ADDRESS = '0xF01973c4A8eDC7B8173AdC8E097A1EfE479f4571';
 const BNB_CHAIN = getBnbChain();
 
 export interface SurveyParams {

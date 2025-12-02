@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ConnectButton, useActiveAccount, useSendTransaction } from 'thirdweb/react';
 import { client, wallets } from '../config/thirdweb';
 import { buildCreateSurveyTransaction } from '../utils/blockchain';
 import { useStatusMessages } from '../hooks/useStatusMessages';
-import { Link, useNavigate } from 'react-router-dom';
 import { StatusDisplay } from '../components/StatusDisplay';
+import Container from '@/components/Container';
 
 export default function CreateSurvey() {
   const activeAccount = useActiveAccount();
@@ -14,6 +15,7 @@ export default function CreateSurvey() {
   const { mutateAsync: sendTransactionAsync } = useSendTransaction();
   const [latestSurveyId, setLatestSurveyId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [questions, setQuestions] = useState<string[]>([]);
 
   const handleCreateSurvey = async () => {
     if (!activeAccount || !surveyDescription.trim()) return;
@@ -39,6 +41,7 @@ export default function CreateSurvey() {
 
       const data = await response.json();
       const { surveyId, totalReward, targetResponses } = data.survey;
+      setQuestions(extractQuestions(data));
 
       updateMessage(genId, { type: 'success', text: 'AI plan generated successfully!' });
       addStatusMessage('Survey parameters generated successfully!', 'success');
@@ -64,6 +67,21 @@ export default function CreateSurvey() {
       }
 
       addStatusMessage('Survey created successfully!', 'success');
+
+      if (surveyId && questions.length === 0) {
+        try {
+          const detailRes = await fetch('https://surveysensei-agent.rahmandana08.workers.dev/agent/survey-detail', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'detail', surveyId })
+          });
+          if (detailRes.ok) {
+            const detailData = await detailRes.json();
+            const qs = extractQuestions(detailData);
+            if (qs.length) setQuestions(qs);
+          }
+        } catch {}
+      }
       
       // Optional: navigate to detail page CTA can remain here
       // Provide quick actions below the button
@@ -77,8 +95,8 @@ export default function CreateSurvey() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 sm:py-12 px-4 md:px-6">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-8 sm:py-12">
+      <Container>
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">SurveySensei</h1>
           <p className="text-base sm:text-lg text-gray-600">Create blockchain-based surveys with crypto rewards</p>
@@ -163,8 +181,36 @@ export default function CreateSurvey() {
 
           {/* Status Messages */}
           <StatusDisplay messages={statusMessages} />
+
+          {questions.length > 0 && (
+            <div className="mt-6 bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-800">Generated Questions</h3>
+              <ol className="mt-3 list-decimal list-inside space-y-2">
+                {questions.map((q, i) => (
+                  <li key={i} className="text-sm text-gray-800">
+                    {q}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
         </div>
-      </div>
+      </Container>
     </div>
   );
+}
+
+function extractQuestions(data: any): string[] {
+  const tryPaths = [
+    (d: any) => d?.survey?.questions,
+    (d: any) => d?.questions,
+    (d: any) => d?.detail?.questions,
+    (d: any) => d?.survey?.plan?.questions,
+    (d: any) => d?.plan?.questions,
+  ];
+  for (const getter of tryPaths) {
+    const v = getter(data);
+    if (Array.isArray(v)) return v.map((x) => String(x)).filter(Boolean);
+  }
+  return [];
 }

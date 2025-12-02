@@ -1,11 +1,12 @@
 import { useEffect, useState, useContext, createContext } from 'react';
 import { useActiveAccount } from 'thirdweb/react';
 import { Loader2, CopyCheck } from 'lucide-react';
+import Container from '@/components/Container';
 
 interface SurveyItem {
   id: string;
   title?: string;
-  createdAt?: string;
+  createdAt?: number | string;
   totalReward?: string;
   targetResponses?: number;
 }
@@ -64,11 +65,12 @@ export default function Surveys() {
         const list: SurveyItem[] = (data.surveys || data.list || []).map((s: any) => ({
           id: s.surveyId || s.id,
           title: s.title || s.description || undefined,
-          createdAt: s.createdAt || s.created_at || s.created || undefined,
+          createdAt: s.createdAt ?? s.created_at ?? s.created ?? undefined,
           totalReward: s.totalReward,
           targetResponses: s.targetResponses,
-        }));
+        })).sort((a, b) => Number(b.createdAt ?? 0) - Number(a.createdAt ?? 0));
         setSurveys(list);
+        setError(null);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Unknown error');
       } finally {
@@ -79,13 +81,13 @@ export default function Surveys() {
   }, [account]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 md:px-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <Container>
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold">My Surveys</h1>
           {loading && <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />}
         </div>
-        {error && <p className="text-red-600 mb-3">{error}</p>}
+        {error && surveys.length === 0 && <p className="text-red-600 mb-3">{error}</p>}
         <ToastProvider>
           {loading ? (
             <ul className="space-y-3">
@@ -108,8 +110,8 @@ export default function Surveys() {
                       <span className="inline-flex items-center rounded-full bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5">Reward: {s.totalReward ?? '-'}</span>
                       <span className="inline-flex items-center rounded-full bg-green-50 text-green-700 text-xs font-semibold px-2 py-0.5">Target: {s.targetResponses ?? '-'}</span>
                     </div>
-                    {s.createdAt && (
-                      <p className="text-xs text-gray-400">Created: {formatDate(s.createdAt)}</p>
+                    {s.createdAt !== undefined && (
+                      <p className="text-xs text-gray-400">Created: {formatDate(s.createdAt as any)}</p>
                     )}
                   </div>
                   <div className="flex-shrink-0 flex gap-2">
@@ -124,7 +126,7 @@ export default function Surveys() {
             </ul>
           )}
         </ToastProvider>
-      </div>
+      </Container>
     </div>
   );
 }
