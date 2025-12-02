@@ -9,6 +9,9 @@ interface SurveyItem {
   createdAt?: number | string;
   totalReward?: string;
   targetResponses?: number;
+  totalResponses?: number;
+  totalValidWallets?: number;
+  avgScore?: number | null;
 }
 
 const ToastCtx = createContext<{ show: (msg: string) => void } | null>(null);
@@ -68,6 +71,9 @@ export default function Surveys() {
           createdAt: s.createdAt ?? s.created_at ?? s.created ?? undefined,
           totalReward: s.totalReward,
           targetResponses: s.targetResponses,
+          totalResponses: s.stats?.totalResponses,
+          totalValidWallets: s.stats?.totalValidWallets,
+          avgScore: s.stats?.avgScore ?? null,
         })).sort((a, b) => Number(b.createdAt ?? 0) - Number(a.createdAt ?? 0));
         setSurveys(list);
         setError(null);
@@ -109,6 +115,15 @@ export default function Surveys() {
                     <div className="mt-1 flex items-center gap-2">
                       <span className="inline-flex items-center rounded-full bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5">Reward: {s.totalReward ?? '-'}</span>
                       <span className="inline-flex items-center rounded-full bg-green-50 text-green-700 text-xs font-semibold px-2 py-0.5">Target: {s.targetResponses ?? '-'}</span>
+                      {typeof s.totalResponses === 'number' && (
+                        <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-700 text-xs font-semibold px-2 py-0.5">Responses: {s.totalResponses}</span>
+                      )}
+                      {typeof s.totalValidWallets === 'number' && (
+                        <span className="inline-flex items-center rounded-full bg-purple-50 text-purple-700 text-xs font-semibold px-2 py-0.5">Valid: {s.totalValidWallets}</span>
+                      )}
+                      {typeof s.avgScore === 'number' && (
+                        <span className="inline-flex items-center rounded-full bg-yellow-50 text-yellow-700 text-xs font-semibold px-2 py-0.5">Avg: {s.avgScore}</span>
+                      )}
                     </div>
                     {s.createdAt !== undefined && (
                       <p className="text-xs text-gray-400">Created: {formatDate(s.createdAt as any)}</p>
