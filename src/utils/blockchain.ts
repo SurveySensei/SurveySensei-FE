@@ -1,6 +1,5 @@
 import { getContract, prepareContractCall } from 'thirdweb';
 import { toWei } from 'thirdweb/utils';
-import type { Account, Abi } from 'thirdweb';
 import { client } from '@/config/thirdweb';
 import abiJson from '@/utils/surveyRewardsAbi.json';
 import { getBnbChain } from '@/config/chains';
@@ -15,7 +14,7 @@ export interface SurveyParams {
 }
 
 export function buildCreateSurveyTransaction(
-  account: Account,
+  account: any,
   surveyParams: SurveyParams
 ) {
   const amountStr = String(surveyParams.totalReward).trim().replace(/[^0-9.]/g, '');
@@ -25,7 +24,7 @@ export function buildCreateSurveyTransaction(
     client,
     chain: BNB_CHAIN,
     address: SURVEY_CONTRACT_ADDRESS,
-    abi: (abiJson as { abi: Abi }).abi,
+    abi: (abiJson as any).abi,
   });
 
   const tx = prepareContractCall({

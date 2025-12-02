@@ -10,7 +10,7 @@ import AnswerSurveyPage from "@/pages/AnswerSurvey";
 
 export default function App() {
   return (
-    <ThirdwebProvider client={client}>
+    <ThirdwebProvider>
       <Router>
         <NavBar />
         <Routes>
