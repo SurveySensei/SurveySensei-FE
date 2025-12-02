@@ -19,9 +19,18 @@ export function buildCreateSurveyTransaction(
   const amountStr = String(surveyParams.totalReward).trim().replace(/[^0-9.]/g, '');
   const totalRewardInWei = toWei(amountStr || '0');
 
+  const chainId = getBnbChainId();
+  const chain = {
+    id: chainId,
+    rpc: chainId === 56 ? 'https://bsc-dataseed.binance.org/' : 'https://bsc-testnet.publicnode.com',
+    nativeCurrency: { name: 'BNB', symbol: chainId === 56 ? 'BNB' : 'TBNB', decimals: 18 },
+    slug: chainId === 56 ? 'bnb-smart-chain' : 'bnb-smart-chain-testnet',
+    testnet: chainId !== 56,
+  } as any;
+
   const contract = getContract({
     client,
-    chain: getBnbChainId(),
+    chain,
     address: SURVEY_CONTRACT_ADDRESS,
     abi: (abiJson as any).abi,
   });
