@@ -2,6 +2,7 @@ import { getContract, prepareContractCall } from 'thirdweb';
 import { toWei } from 'thirdweb/utils';
 import { client } from '@/config/thirdweb';
 import abiJson from '@/utils/surveyRewardsAbi.json';
+import { getBnbChainId } from '@/config/chains';
 
 export const SURVEY_CONTRACT_ADDRESS = '0xF01973c4A8eDC7B8173AdC8E097A1EfE479f4571';
 
@@ -20,6 +21,7 @@ export function buildCreateSurveyTransaction(
 
   const contract = getContract({
     client,
+    chain: getBnbChainId(),
     address: SURVEY_CONTRACT_ADDRESS,
     abi: (abiJson as any).abi,
   });
