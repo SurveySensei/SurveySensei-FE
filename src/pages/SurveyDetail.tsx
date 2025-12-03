@@ -122,6 +122,11 @@ export default function SurveyDetailPage() {
 
   const shareUrl = `${window.location.origin}/survey/${id}`;
 
+  const creatorMatch = !!(
+    detail?.creator && account?.address &&
+    detail.creator.toLowerCase() === account.address.toLowerCase()
+  );
+
 function shortWallet(addr?: string) {
   if (!addr) return '-';
   const s = String(addr);
@@ -182,7 +187,7 @@ function formatDate(input?: number | string) {
                 >Copy Share Link</button>
               </div>
             )}
-            {isCreator && stats && (
+            {creatorMatch && stats && (
               <div className="mt-4 rounded border p-4">
                 <p className="text-sm font-semibold mb-2">Stats</p>
                 <p className="text-sm">Total Responses: {stats.totalResponses}</p>
@@ -190,7 +195,7 @@ function formatDate(input?: number | string) {
                 <p className="text-sm">Average Score: {stats.avgScore ?? '-'}</p>
               </div>
             )}
-            {isCreator && responses.length > 0 && (
+            {creatorMatch && responses.length > 0 && (
               <div className="mt-4 rounded border p-4">
                 <p className="text-sm font-semibold mb-2">Responses</p>
                 <ul className="space-y-3">
