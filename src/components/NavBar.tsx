@@ -11,7 +11,10 @@ export default function NavBar() {
       <Container>
         <div className="py-3 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link to="/" className="text-xl font-bold text-gray-900">SurveySensei</Link>
+            <Link to="/" className="flex items-center gap-2">
+              <img src="/logo.png" alt="SurveySensei" className="w-6 h-6" />
+              <span className="text-xl font-bold text-gray-900">SurveySensei</span>
+            </Link>
             <nav className="hidden sm:flex items-center gap-4">
               <Link to="/" className={`text-sm ${isActive('/') ? 'text-blue-600 font-semibold' : 'text-gray-700'}`}>Dashboard</Link>
             </nav>
