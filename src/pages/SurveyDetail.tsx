@@ -67,7 +67,7 @@ export default function SurveyDetailPage() {
         createdAt: d.createdAt,
       };
       setDetail(nextDetail);
-      if (data.stats) {
+      if ('stats' in data && data.stats) {
         setStats({
           totalResponses: data.stats.totalResponses ?? 0,
           totalValidWallets: data.stats.totalValidWallets ?? 0,
@@ -75,17 +75,23 @@ export default function SurveyDetailPage() {
           wallets: data.stats.wallets ?? [],
         });
       }
-      setResponses(Array.isArray(data.responses)
-        ? data.responses.map((r: any) => ({
-            id: r.id,
-            wallet: r.wallet,
-            status: r.status,
-            score: r.score,
-            explanation: r.explanation,
-            answers: r.answers,
-            createdAt: r.createdAt,
-          }))
-        : []);
+      if ('responses' in data) {
+        if (Array.isArray(data.responses)) {
+          setResponses(
+            data.responses.map((r: any) => ({
+              id: r.id,
+              wallet: r.wallet,
+              status: r.status,
+              score: r.score,
+              explanation: r.explanation,
+              answers: r.answers,
+              createdAt: r.createdAt,
+            }))
+          );
+        } else {
+          setResponses([]);
+        }
+      }
       if ((d.creatorWallet || d.creator) && account?.address) {
         const creatorAddr = String(d.creatorWallet || d.creator);
         setIsCreator(creatorAddr.toLowerCase() === account.address.toLowerCase());
