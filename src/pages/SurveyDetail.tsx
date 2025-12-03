@@ -165,7 +165,7 @@ function formatDate(input?: number | string) {
             {detail && account?.address && detail.creator && account.address.toLowerCase() === detail.creator.toLowerCase() && (
               <Link to="/surveys" className="text-blue-600">Back to My Surveys</Link>
             )}
-            {id && (!account?.address || !detail?.creator || String(detail.creator).toLowerCase() !== account.address.toLowerCase()) && (
+            {id && !loading && detail && (!account?.address || !detail?.creator || String(detail.creator).toLowerCase() !== account.address.toLowerCase()) && (
               <Link to={`/answer/${id}`} className="bg-blue-600 text-white py-1 px-3 rounded">Answer Survey</Link>
             )}
           </div>
