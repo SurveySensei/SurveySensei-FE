@@ -52,6 +52,7 @@ export default function SurveyDetailPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'detail', surveyId: id }),
+        cache: 'no-store',
       });
       if (!res.ok) throw new Error('Failed to fetch survey detail');
       const text = await res.text();
@@ -76,9 +77,16 @@ export default function SurveyDetailPage() {
         });
       }
       if ('responses' in data) {
-        if (Array.isArray(data.responses)) {
+        const src = Array.isArray(data.responses)
+          ? data.responses
+          : Array.isArray(data.responses?.items)
+            ? data.responses.items
+            : Array.isArray(data.responses?.data)
+              ? data.responses.data
+              : null;
+        if (src) {
           setResponses(
-            data.responses.map((r: any) => ({
+            src.map((r: any) => ({
               id: r.id,
               wallet: r.wallet,
               status: r.status,
@@ -88,7 +96,7 @@ export default function SurveyDetailPage() {
               createdAt: r.createdAt,
             }))
           );
-        } else {
+        } else if (!responses.length) {
           setResponses([]);
         }
       }
