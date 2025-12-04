@@ -70,15 +70,16 @@ export default function AnswerSurveyPage() {
       });
       if (!res.ok) throw new Error('Failed to submit answers');
       const data: VerdictResponse = await res.json();
-      setVerdict({
+      const next: VerdictResponse = {
         verdict: (data as any).verdict ?? data.verdict,
         reason: (data as any).reason ?? data.reason,
         explanation: (data as any).explanation ?? data.explanation,
         score: (data as any).score ?? data.score,
         rewardTxHash: (data as any).rewardTxHash ?? (data as any).reward_tx_hash,
         txHash: (data as any).txHash || (data as any).transactionHash || (data as any).hash,
-      });
-      setSubmitted(true);
+      };
+      setVerdict(next);
+      setSubmitted(String(next.verdict || '').toLowerCase() === 'valid');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unknown error');
     } finally {
