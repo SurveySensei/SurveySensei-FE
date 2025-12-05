@@ -6,7 +6,7 @@ graph TD
   B --> C[Thirdweb SDK]
   C --> D[Wallet Connection]
   C --> E[Contract Interaction]
-  B --> F[AI Agent API]
+  B --> F[Nullshot Agent Framework]
   E --> G[Blockchain Network]
 
   subgraph "Frontend Layer"
@@ -41,10 +41,11 @@ graph TD
 | ----- | ----------------------------------------------------------------------- |
 | /     | Create Survey page with wallet connection and survey creation interface |
 
-## 4. API definitions
+## 4. Agent Integration
 
-### 4.1 AI Agent API
+### 4.1 Nullshot Agent Framework (MCP-enabled)
 
+Endpoint example (current deployment):
 ```
 POST https://surveysensei-agent.rahmandana08.workers.dev/agent/create
 ```
@@ -80,6 +81,12 @@ Example Response:
   }
 }
 ```
+
+### 4.2 MCP Tools
+
+- `surveysensei.store`: persist agent drafts/metadata for surveys
+- `web.fetch`: controlled HTTP access when required by the agent
+- `blockchain.helpers`: reward/target heuristics; client still validates
 
 ## 5. Thirdweb Integration Details
 
@@ -144,4 +151,3 @@ export const wallets = [
 * Error handling for API calls and blockchain transactions
 
 * Status message management for user feedback
-
